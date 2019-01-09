@@ -1,4 +1,4 @@
-# single image dehaze
+# Single image dehaze
 ## Introduction
 This program implement single image dehazing using dark channel prior. 
 
@@ -12,6 +12,7 @@ This program implement single image dehazing using dark channel prior.
 <img src="./image/J.png"   height = "400" alt="图片名称" />
 </center>
 
+## [Blog](http://www.freethatphoto.com/how-dehazing-works-photo/)
 
 ## Algorithms
 - Single Image Haze Removal Using Dark Channel Prior, Kaiming He, Jian Sun, and Xiaoou Tang", in CVPR 2009 
