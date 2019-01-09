@@ -8,8 +8,8 @@ This program implement single image dehazing using dark channel prior.
 
 ## Examples
 <center>
-<img src="./image/15.png"  height = "400" alt="图片名称" />
-<img src="./image/J.png"   height = "400" alt="图片名称" />
+<img src="./image/15.png"  height = "400" alt="Before Image" />
+<img src="./image/J.png"   height = "400" alt="After Dehazing" />
 </center>
 
 ## [Blog](http://www.freethatphoto.com/how-dehazing-works-photo/)
