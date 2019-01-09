@@ -3,32 +3,51 @@ import math;
 import numpy as np;
 
 def DarkChannel(im,sz):
-    b,g,r = cv2.split(im)
-    dc = cv2.min(cv2.min(r,g),b);
+    b,g,r = cv2.split(im)                                           # split image to r, g, b channels
+    # finding color channel (r, g or b) with lowest intensity (low intensity contributed due to airlight)
+    # dark pixels can directly provide an accurate estimation of the haze transmission
+    dc = cv2.min(cv2.min(r, g), b)
+    # return a rectangular structuring element of the specified size and shape for morphological operations
+    # sz is the size of the structuring element
     kernel = cv2.getStructuringElement(cv2.MORPH_RECT,(sz,sz))
+    # erodes image of rectangular sturcturing element of size 'sz'
+    # this is the dark channel
     dark = cv2.erode(dc,kernel)
     return dark
 
 def AtmLight(im,dark):
+    # take height and width of image (first two columns)
     [h,w] = im.shape[:2]
+    # image size would be height * width
     imsz = h*w
+
+    # check number of pixels in multiples of 1000s
     numpx = int(max(math.floor(imsz/1000),1))
+
+    # reshape as 1 column array of size 'imsz'
     darkvec = dark.reshape(imsz,1);
+    # reshape as 3 column array of size 'imsz'
     imvec = im.reshape(imsz,3);
 
+    # return indices that would sort the array (descending order)
+    # Since the lightest regions of the dark channel correspond to the haziest part of the original image.
     indices = darkvec.argsort();
+    # If we select the brightest 0.1% of the dark channel we will get the haziest pixels
     indices = indices[imsz-numpx::]
 
-    atmsum = np.zeros([1,3])
+    atmsum = np.zeros([1,3])                    # return array of zeros
     for ind in range(1,numpx):
-       atmsum = atmsum + imvec[indices[ind]]
+        # Switching back to the original RGB values of these same pixels
+        # we can take the brightest as the atmospheric light
+        atmsum = atmsum + imvec[indices[ind]]
 
-    A = atmsum / numpx;
+    A = atmsum / numpx;                         
     return A
 
 def TransmissionEstimate(im,A,sz):
     omega = 0.95;
-    im3 = np.empty(im.shape,im.dtype);
+    # Return a new array of given shape and type, without initializing entries.
+    im3 = np.empty(im.shape, im.dtype)
 
     for ind in range(0,3):
         im3[:,:,ind] = im[:,:,ind]/A[0,ind]
@@ -77,20 +96,24 @@ if __name__ == '__main__':
     try:
         fn = sys.argv[1]
     except:
-        fn = './image/15.png'
+        fn = './image/14.png'
 
-    def nothing(*argv):
-        pass
+#    def nothing(*argv):
+#        pass
 
-    src = cv2.imread(fn);
+    src = cv2.imread(fn);                   # read the image
+                                            
+                                            # use astype to cast image to float 64 values
+    I = src.astype('float64')/255;          # normalizing the data to 0 - 1 (Since 255 is the maximum value)
 
-    I = src.astype('float64')/255;
- 
-    dark = DarkChannel(I,15);
-    A = AtmLight(I,dark);
+    dark = DarkChannel(I,15);               # extracting dark channel prior
+    A = AtmLight(I,dark);                   # extracting global atmospheric lighting
+    # Transmission is an estimate of how much of the light from the 
+    # original object is making it through the haze at each pixel
     te = TransmissionEstimate(I,A,15);
     t = TransmissionRefine(src,te);
-    J = Recover(I,t,A,0.1);
+    # atmospheric light is subtracted from each pixel in proportion to the transmission at that pixel.
+    J = Recover(I, t, A, 0.1)
 
     cv2.imshow("dark",dark);
     cv2.imshow("t",t);
