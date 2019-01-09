@@ -13,6 +13,7 @@ This program implement single image dehazing using dark channel prior.
 </center>
 
 ## [Blog](http://www.freethatphoto.com/how-dehazing-works-photo/)
+- How dehazing works: a simple explanation
 
 ## Algorithms
 - Single Image Haze Removal Using Dark Channel Prior, Kaiming He, Jian Sun, and Xiaoou Tang", in CVPR 2009 
