@@ -115,10 +115,10 @@ if __name__ == '__main__':
     # atmospheric light is subtracted from each pixel in proportion to the transmission at that pixel.
     J = Recover(I, t, A, 0.1)
 
-    cv2.imshow("dark",dark);
-    cv2.imshow("t",t);
-    cv2.imshow('I',src);
-    cv2.imshow('J',J);
+    cv2.imshow("dark",dark);                # dark channel
+    cv2.imshow("t",t);                      # Transmission
+    cv2.imshow('I',src);                    # original image
+    cv2.imshow('J',J);                      # image after dehazing
     cv2.imwrite("./image/J.png",J*255);
     cv2.waitKey();
     
